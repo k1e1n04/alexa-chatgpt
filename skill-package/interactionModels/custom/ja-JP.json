@@ -1,0 +1,42 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "チャッピー",
+      "intents": [
+        {
+          "name": "ChatIntent",
+          "slots": [
+            {
+              "name": "query",
+              "type": "AMAZON.SearchQuery"
+            }
+          ],
+          "samples": [
+            "チャッピー {query}",
+            "きいて {query}",
+            "おしえて {query}",
+            "しらべて {query}",
+            "GPT {query}"
+          ]
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": ["おわり", "おわって", "とめて", "バイバイ"]
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": ["キャンセル", "やめて"]
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": ["つかいかた", "ヘルプ", "なにができるの"]
+        }
+      ],
+      "types": []
+    }
+  }
+}

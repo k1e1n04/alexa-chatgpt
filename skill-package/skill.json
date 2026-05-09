@@ -1,0 +1,45 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "ja-JP": {
+          "name": "GPT アシスタント",
+          "summary": "ChatGPT と会話したり調べ物ができるスキルです",
+          "description": "ChatGPT と会話したり、ウェブ検索して調べ物をしてもらえます。",
+          "examplePhrases": [
+            "チャットジーピーティーを開いて",
+            "今日の天気を教えて",
+            "Pythonとは何ですか"
+          ],
+          "keywords": [
+            "ChatGPT",
+            "AI",
+            "アシスタント",
+            "調べ物"
+          ]
+        }
+      },
+      "isAvailableWorldwide": false,
+      "testingInstructions": "チャットジーピーティーを開いて、と話しかけてください",
+      "category": "KNOWLEDGE_AND_TRIVIA",
+      "distributionCountries": [
+        "JP"
+      ]
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:939071265855:function:ask-gpt-stg-default-1778335242791"
+        }
+      }
+    },
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false
+    },
+    "manifestVersion": "1.0"
+  }
+}

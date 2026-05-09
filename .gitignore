@@ -1,0 +1,6 @@
+.env
+.ask/ask-states.json
+node_modules/
+lambda/node_modules/
+lambda/index.js
+lambda/dist/

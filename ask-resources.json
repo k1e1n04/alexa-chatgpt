@@ -1,0 +1,24 @@
+{
+  "askToolkitVersion": "2.0.0",
+  "profiles": {
+    "stg": {
+      "skillMetadata": {
+        "src": "./skill-package"
+      },
+      "code": {
+        "default": {
+          "src": "./lambda",
+          "buildFlow": "npm-build"
+        }
+      },
+      "skillInfrastructure": {
+        "type": "@ask-cli/lambda-deployer",
+        "userConfig": {
+          "runtime": "nodejs20.x",
+          "handler": "index.handler",
+          "templateType": "cfn"
+        }
+      }
+    }
+  }
+}
