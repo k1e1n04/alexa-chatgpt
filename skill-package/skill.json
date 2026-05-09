@@ -8,8 +8,8 @@
           "description": "ChatGPT と会話したり、ウェブ検索して調べ物をしてもらえます。",
           "examplePhrases": [
             "チャッピーを開いて",
-            "今日の天気を教えて",
-            "Pythonとは何ですか"
+            "チャッピーで今日のニュースを調べて",
+            "チャッピーを使ってPythonとは何か教えて"
           ],
           "keywords": [
             "ChatGPT",
