@@ -38,9 +38,11 @@ cd lambda && npm install
 
 ### 3. デプロイ
 
+stgのprofileとしてアクセストークンをセットする
+
 ```bash
 # プロジェクトルートで実行
-ask deploy
+ask deploy --profile stg
 ```
 
 初回デプロイ時に AWS Lambda 関数と Alexa スキルが自動作成されます。
