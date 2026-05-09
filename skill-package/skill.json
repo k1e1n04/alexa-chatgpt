@@ -7,7 +7,7 @@
           "summary": "ChatGPT と会話したり調べ物ができるスキルです",
           "description": "ChatGPT と会話したり、ウェブ検索して調べ物をしてもらえます。",
           "examplePhrases": [
-            "チャットジーピーティーを開いて",
+            "チャッピーを開いて",
             "今日の天気を教えて",
             "Pythonとは何ですか"
           ],
@@ -20,7 +20,7 @@
         }
       },
       "isAvailableWorldwide": false,
-      "testingInstructions": "チャットジーピーティーを開いて、と話しかけてください",
+      "testingInstructions": "チャッピーを開いて、と話しかけてください",
       "category": "KNOWLEDGE_AND_TRIVIA",
       "distributionCountries": [
         "JP"

@@ -1,6 +1,6 @@
 # Alexa × ChatGPT スキル
 
-Alexaから ChatGPT（gpt-5-mini）と会話したり、ウェブ検索して調べ物ができる自分専用スキルです。
+Alexaから ChatGPT（gpt-4.1-mini）と会話したり、ウェブ検索して調べ物ができる自分専用スキルです。
 
 ## アーキテクチャ
 
@@ -8,7 +8,7 @@ Alexaから ChatGPT（gpt-5-mini）と会話したり、ウェブ検索して調
 [Alexa] → [AWS Lambda] → [OpenAI Responses API + web_search_preview]
 ```
 
-- 「チャットジーピーティーを開いて」で起動
+- 「チャッピーを開いて」で起動
 - セッション内は会話の文脈を保持（previous_response_id）
 - 最新情報はモデルが自律的にウェブ検索して回答
 
@@ -64,7 +64,7 @@ AWS コンソール → Lambda → 作成された関数 → 設定 → 環境�
 [Alexa 開発者コンソール](https://developer.amazon.com/alexa/console/ask) → スキル → テストタブ
 
 テキストで試す例：
-- 「チャットジーピーティーを開いて」
+- 「チャッピーを開いて」
 - 「東京の人口は？」
 - 「今日のニュースを教えて」（ウェブ検索が走ります）
 - 「Pythonとは何ですか」
