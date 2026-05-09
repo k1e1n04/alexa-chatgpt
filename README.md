@@ -53,6 +53,7 @@ AWS コンソール → Lambda → 作成された関数 → 設定 → 環境�
 |------|-----|
 | `OPENAI_API_KEY` | `sk-xxxxxxxxxxxxxxxx` |
 | `OPENAI_MODEL` | `gpt-5-mini`（省略時: gpt-4o-mini） |
+| ENABLE_WEB_SEARCH | `true` |
 
 > または ask-cli の `ask lambda update-function-configuration` コマンドでも設定できます。
 
