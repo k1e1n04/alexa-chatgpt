@@ -1,4 +1,4 @@
-import { isResearchQuery } from "./routingDecider";
+import { isResearchQuery, isBriefingQuery } from "./routingDecider";
 
 export interface SlotValues {
   rawQuery: string;
@@ -10,6 +10,7 @@ export interface SlotValues {
 export interface QueryBuildResult {
   query: string;
   researchMode: boolean;
+  briefingMode: boolean;
   isLaunchPhrase: boolean;
 }
 
@@ -20,21 +21,26 @@ export function buildQuery(slots: SlotValues): QueryBuildResult {
 
   let query: string;
   let researchMode: boolean;
+  let briefingMode: boolean;
 
   if (shopItem) {
     query = `${shopItem}を買い物リストに追加して`;
     researchMode = false;
+    briefingMode = false;
   } else if (shopAction) {
     query = `買い物リストを${shopAction}`;
     researchMode = false;
+    briefingMode = false;
   } else if (topicQuery) {
     query = topicQuery;
     researchMode = true;
+    briefingMode = false;
   } else {
     query = rawQuery;
-    researchMode = isResearchQuery(rawQuery);
+    briefingMode = isBriefingQuery(rawQuery);
+    researchMode = !briefingMode && isResearchQuery(rawQuery);
   }
 
   const isLaunchPhrase = !query || LAUNCH_PHRASES.includes(query.trim());
-  return { query, researchMode, isLaunchPhrase };
+  return { query, researchMode, briefingMode, isLaunchPhrase };
 }

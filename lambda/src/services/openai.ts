@@ -35,6 +35,7 @@ const DEFAULT_TIMEOUT_MS = 3500;
 export async function chat(
   userQuery: string,
   previousResponseId?: string,
+  contextData?: string,
 ): Promise<ChatResult> {
   const enableWebSearch = process.env.ENABLE_WEB_SEARCH === "true";
 
@@ -45,10 +46,14 @@ export async function chat(
       : []),
   ];
 
+  const instructions = contextData
+    ? `${SYSTEM_INSTRUCTIONS}\n\n以下の情報を使って回答してください:\n${contextData}`
+    : SYSTEM_INSTRUCTIONS;
+
   const firstResponse = await openai.responses.create(
     {
       model: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
-      instructions: SYSTEM_INSTRUCTIONS,
+      instructions,
       input: userQuery,
       tools,
       ...(previousResponseId ? { previous_response_id: previousResponseId } : {}),

@@ -6,3 +6,9 @@ export function isResearchQuery(query: string): boolean {
   if (RESEARCH_KEYWORDS_CONTAINS.some((kw) => query.includes(kw))) return true;
   return false;
 }
+
+const BRIEFING_KEYWORDS = ["おはよう", "今日の予定", "今日の天気", "今日どう", "今朝"];
+
+export function isBriefingQuery(query: string): boolean {
+  return BRIEFING_KEYWORDS.some((kw) => query.includes(kw));
+}

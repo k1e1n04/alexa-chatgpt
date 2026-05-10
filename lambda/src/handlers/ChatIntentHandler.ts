@@ -4,8 +4,12 @@ import { chat } from "../services/openai";
 import { research } from "../services/gemini";
 import { buildQuery } from "../chat/queryBuilder";
 import { sendProgressiveResponse } from "../chat/progressiveResponse";
+import { getBriefingData, buildBriefingContext } from "../services/briefing";
+import type { ConversationTurn } from "../services/memory";
 
 const SESSION_KEY_RESPONSE_ID = "previousResponseId";
+const SESSION_KEY_MEMORY = "memoryContext";
+const SESSION_KEY_LOG = "conversationLog";
 
 export const ChatIntentHandler: RequestHandler = {
   canHandle(handlerInput: HandlerInput): boolean {
@@ -17,7 +21,7 @@ export const ChatIntentHandler: RequestHandler = {
   },
   async handle(handlerInput: HandlerInput) {
     const request = handlerInput.requestEnvelope.request as IntentRequest;
-    const { query, researchMode, isLaunchPhrase } = buildQuery({
+    const { query, researchMode, briefingMode, isLaunchPhrase } = buildQuery({
       rawQuery: request.intent.slots?.query?.value ?? "",
       topicQuery: request.intent.slots?.topic?.value ?? "",
       shopItem: request.intent.slots?.shopItem?.value ?? "",
@@ -33,27 +37,45 @@ export const ChatIntentHandler: RequestHandler = {
 
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const previousResponseId = sessionAttributes[SESSION_KEY_RESPONSE_ID] as string | undefined;
+    const memoryContext = sessionAttributes[SESSION_KEY_MEMORY] as string | undefined;
+    const conversationLog = (sessionAttributes[SESSION_KEY_LOG] as ConversationTurn[]) ?? [];
 
     try {
-      if (researchMode) {
+      if (briefingMode || researchMode) {
         await sendProgressiveResponse(handlerInput, "少々お待ちください。");
       }
 
       let responseText: string;
       let responseId: string | undefined;
+      let loggedQuery = query;
 
-      if (researchMode && process.env.GEMINI_API_KEY) {
+      if (briefingMode) {
+        const briefingData = await getBriefingData();
+        const contextData = buildBriefingContext(briefingData);
+        loggedQuery = "今日のブリーフィング";
+        const briefingQuery = "今日のブリーフィングをお願いします。天気と予定を読み上げ、今日の気温に合わせた服装アドバイスも教えてください。";
+        const contextWithMemory = memoryContext
+          ? `${contextData}\n\n前回の会話コンテキスト: ${memoryContext}`
+          : contextData;
+        const result = await chat(briefingQuery, previousResponseId, contextWithMemory);
+        responseText = result.text;
+        responseId = result.responseId;
+      } else if (researchMode && process.env.GEMINI_API_KEY) {
         responseText = await research(query);
       } else {
-        const result = await chat(query, previousResponseId);
+        const contextData = memoryContext ? `前回の会話コンテキスト: ${memoryContext}` : undefined;
+        const result = await chat(query, previousResponseId, contextData);
         responseText = result.text;
         responseId = result.responseId;
       }
 
+      conversationLog.push({ user: loggedQuery, assistant: responseText });
+      sessionAttributes[SESSION_KEY_LOG] = conversationLog;
+
       if (responseId) {
         sessionAttributes[SESSION_KEY_RESPONSE_ID] = responseId;
-        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
       }
+      handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
       return handlerInput.responseBuilder
         .speak(responseText)

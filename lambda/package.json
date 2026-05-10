@@ -4,11 +4,13 @@
   "description": "Alexa skill backed by ChatGPT via OpenAI Responses API",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=index.js --minify",
-    "build:dev": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=index.js",
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=index.js --minify --external:@aws-sdk/*",
+    "build:dev": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=index.js --external:@aws-sdk/*",
     "watch": "npm run build:dev -- --watch"
   },
   "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1045.0",
+    "@aws-sdk/lib-dynamodb": "^3.1045.0",
     "@google/genai": "^2.0.1",
     "@types/node": "^20.0.0",
     "ask-sdk": "^2.14.0",
