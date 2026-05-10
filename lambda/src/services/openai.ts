@@ -9,7 +9,7 @@ import { research } from "./gemini";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  timeout: 6000,
+  timeout: 15000,
   maxRetries: 0,
 });
 
@@ -62,7 +62,7 @@ async function executeToolDispatch(name: string, args: Record<string, unknown>):
   );
 }
 
-const DEFAULT_TIMEOUT_MS = 6000;
+const DEFAULT_TIMEOUT_MS = 15000;
 const MAX_TOOL_ROUNDS = 3;
 
 export async function chat(
