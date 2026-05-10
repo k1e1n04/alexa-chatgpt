@@ -1,15 +1,16 @@
 import { google } from "googleapis";
 
-const auth = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-);
-auth.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
-
-const calendar = google.calendar({ version: "v3", auth });
-
 const CALENDAR_ID = "primary";
 const TIME_ZONE = "Asia/Tokyo";
+
+function getCalendar() {
+  const auth = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+  );
+  auth.setCredentials({ refresh_token: process.env.GOOGLE_REFRESH_TOKEN });
+  return google.calendar({ version: "v3", auth });
+}
 
 export interface CalendarEvent {
   title: string;
@@ -18,6 +19,7 @@ export interface CalendarEvent {
 }
 
 export async function getTodayEvents(): Promise<CalendarEvent[]> {
+  const calendar = getCalendar();
   const now = new Date();
   const startOfDay = new Date(now);
   startOfDay.setHours(0, 0, 0, 0);
@@ -45,6 +47,7 @@ export async function addCalendarEvent(
   startTime: string,
   endTime: string,
 ): Promise<void> {
+  const calendar = getCalendar();
   await calendar.events.insert({
     calendarId: CALENDAR_ID,
     requestBody: {

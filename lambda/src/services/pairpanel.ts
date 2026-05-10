@@ -32,7 +32,7 @@ export async function addShoppingItem(name: string): Promise<ShoppingItem> {
   const res = await fetch(`${BASE_URL}/api/v1/alexa/shopping/register`, {
     method: "POST",
     headers: headers(),
-    body: JSON.stringify({ name, isShared: false }),
+    body: JSON.stringify({ name, isShared: true }),
     signal: AbortSignal.timeout(5000),
   });
   if (!res.ok) throw new Error(`addShoppingItem failed: ${res.status}`);
