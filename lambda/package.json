@@ -8,14 +8,13 @@
     "build:dev": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=index.js",
     "watch": "npm run build:dev -- --watch"
   },
-  "dependencies": {
-    "ask-sdk": "^2.14.0",
-    "googleapis": "^171.4.0",
-    "openai": "^5.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "ask-sdk": "^2.14.0",
     "esbuild": "^0.24.0",
+    "googleapis": "^171.4.0",
+    "openai": "^5.0.0",
     "typescript": "^5.0.0"
   }
 }
