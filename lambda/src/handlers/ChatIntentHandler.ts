@@ -85,12 +85,17 @@ export const ChatIntentHandler: RequestHandler = {
         .reprompt("他に何か聞きたいことはありますか？")
         .getResponse();
     } catch (error) {
-      console.error("OpenAI API error:", error);
-      const isTimeout =
-        error instanceof Error &&
-        (error.message.includes("timeout") || error.message.includes("timed out"));
+      console.error("API error:", error);
+      const msg = error instanceof Error ? error.message : String(error);
+      const isTimeout = msg.includes("timeout") || msg.includes("timed out");
+      const isRateLimit = msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota");
+      const isBusy = msg.includes("503") || msg.includes("UNAVAILABLE") || msg.includes("high demand");
       const message = isTimeout
         ? "少し時間がかかっています。もう一度同じ質問をしてみてください。"
+        : isRateLimit
+        ? "調査機能の利用上限に達しました。しばらく時間をおいてから試してください。"
+        : isBusy
+        ? "ただいま混雑しています。少し待ってからもう一度試してください。"
         : "エラーが発生しました。もう一度試してみてください。";
       return handlerInput.responseBuilder
         .speak(message)
