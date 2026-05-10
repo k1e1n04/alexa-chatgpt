@@ -17,10 +17,11 @@ export const ChatIntentHandler: RequestHandler = {
     const query =
       request.intent.slots?.query?.value ?? "";
 
-    if (!query) {
+    const LAUNCH_PHRASES = ["を開いて", "開いて", "を起動して", "起動して"];
+    if (!query || LAUNCH_PHRASES.includes(query.trim())) {
       return handlerInput.responseBuilder
-        .speak("もう一度おっしゃっていただけますか？")
-        .reprompt("何でも聞いてください。")
+        .speak("はい、どうぞ。")
+        .reprompt("何か聞きたいことはありますか？")
         .getResponse();
     }
 
