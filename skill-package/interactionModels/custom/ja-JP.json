@@ -12,6 +12,7 @@
             }
           ],
           "samples": [
+            "{query}",
             "チャッピー {query}",
             "きいて {query}",
             "おしえて {query}",
