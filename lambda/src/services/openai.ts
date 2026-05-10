@@ -78,7 +78,7 @@ const CUSTOM_TOOLS: OpenAI.Responses.FunctionTool[] = [
   },
 ];
 
-const RESEARCH_TIMEOUT_MS = 6500;
+const RESEARCH_TIMEOUT_MS = 15000;
 const DEFAULT_TIMEOUT_MS = 3500;
 
 export async function chat(
@@ -90,7 +90,7 @@ export async function chat(
 
   if (researchMode) {
     const tools: OpenAI.Responses.ResponseCreateParams["tools"] = enableWebSearch
-      ? [{ type: "web_search" as const, search_context_size: "low" as const }]
+      ? [{ type: "web_search" as const, search_context_size: "medium" as const }]
       : [];
     const response = await openai.responses.create(
       {
@@ -108,7 +108,7 @@ export async function chat(
   const tools: OpenAI.Responses.ResponseCreateParams["tools"] = [
     ...CUSTOM_TOOLS,
     ...(enableWebSearch
-      ? [{ type: "web_search" as const, search_context_size: "low" as const }]
+      ? [{ type: "web_search" as const, search_context_size: "medium" as const }]
       : []),
   ];
 
