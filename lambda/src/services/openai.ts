@@ -2,35 +2,48 @@ import OpenAI from "openai";
 import type { ResponseInputItem } from "openai/resources/responses/responses";
 import { shoppingToolDefinitions, executeShoppingTool } from "./tools/shoppingTools";
 import { calendarToolDefinitions, executeCalendarTool } from "./tools/calendarTools";
+import { switchbotToolDefinitions, executeSwitchbotTool } from "./tools/switchbotTools";
+import { slackToolDefinitions, executeSlackTool } from "./tools/slackTools";
 import { cleanForSpeech } from "./utils/speechUtils";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-  timeout: 3500,
+  timeout: 6000,
   maxRetries: 0,
 });
 
 const SYSTEM_INSTRUCTIONS =
   "あなたはAlexaで動く日本語アシスタントです。" +
   "音声で聞きやすいよう、簡潔に答えてください。" +
-  "箇条書きや記号は使わず、自然な話し言葉で回答してください。";
+  "箇条書きや記号は使わず、自然な話し言葉で回答してください。" +
+  "利用者は石井健（1999年4月4日生まれ）か石井奈緒（1999年4月11日生まれ）の夫婦のいずれかです。";
 
 export interface ChatResult {
   text: string;
   responseId: string;
 }
 
-const CUSTOM_TOOLS = [...shoppingToolDefinitions, ...calendarToolDefinitions];
+const hasSwitchbot = !!(process.env.SWITCHBOT_TOKEN && process.env.SWITCHBOT_AC_DEVICE_ID);
+const hasSlack = !!process.env.SLACK_WEBHOOK_URL;
+
+const CUSTOM_TOOLS = [
+  ...shoppingToolDefinitions,
+  ...calendarToolDefinitions,
+  ...(hasSwitchbot ? switchbotToolDefinitions : []),
+  ...(hasSlack ? slackToolDefinitions : []),
+];
 
 async function executeToolDispatch(name: string, args: Record<string, unknown>): Promise<string> {
   return (
     (await executeShoppingTool(name, args)) ??
     (await executeCalendarTool(name, args)) ??
+    (await executeSwitchbotTool(name, args)) ??
+    (await executeSlackTool(name, args)) ??
     JSON.stringify({ error: `未知の関数: ${name}` })
   );
 }
 
-const DEFAULT_TIMEOUT_MS = 3500;
+const DEFAULT_TIMEOUT_MS = 6000;
 
 export async function chat(
   userQuery: string,
