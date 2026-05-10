@@ -1,7 +1,6 @@
 import { HandlerInput, RequestHandler } from "ask-sdk-core";
 import { IntentRequest } from "ask-sdk-model";
 import { chat } from "../services/openai";
-import { research } from "../services/gemini";
 import { buildQuery } from "../chat/queryBuilder";
 import { sendProgressiveResponse } from "../chat/progressiveResponse";
 import { getBriefingData, buildBriefingContext } from "../services/briefing";
@@ -28,8 +27,8 @@ export const ChatIntentHandler: RequestHandler = {
       shopAction: request.intent.slots?.shopAction?.value ?? "",
     };
     console.info("[slots]", JSON.stringify(slots));
-    const { query, researchMode, briefingMode, isLaunchPhrase } = buildQuery(slots);
-    console.info("[routing]", JSON.stringify({ query, researchMode, briefingMode }));
+    const { query, briefingMode, isLaunchPhrase } = buildQuery(slots);
+    console.info("[routing]", JSON.stringify({ query, briefingMode }));
 
     if (isLaunchPhrase) {
       return handlerInput.responseBuilder
@@ -44,9 +43,7 @@ export const ChatIntentHandler: RequestHandler = {
     const conversationLog = (sessionAttributes[SESSION_KEY_LOG] as ConversationTurn[]) ?? [];
 
     try {
-      if (briefingMode || researchMode) {
-        await sendProgressiveResponse(handlerInput, "少々お待ちください。");
-      }
+      await sendProgressiveResponse(handlerInput, "少々お待ちください。");
 
       let responseText: string;
       let responseId: string | undefined;
@@ -63,8 +60,6 @@ export const ChatIntentHandler: RequestHandler = {
         const result = await chat(briefingQuery, previousResponseId, contextWithMemory);
         responseText = result.text;
         responseId = result.responseId;
-      } else if (researchMode && process.env.GEMINI_API_KEY) {
-        responseText = await research(query);
       } else {
         const contextData = memoryContext ? `前回の会話コンテキスト: ${memoryContext}` : undefined;
         const result = await chat(query, previousResponseId, contextData);

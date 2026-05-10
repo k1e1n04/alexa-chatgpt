@@ -5,6 +5,7 @@ import { calendarToolDefinitions, executeCalendarTool } from "./tools/calendarTo
 import { switchbotToolDefinitions, executeSwitchbotTool } from "./tools/switchbotTools";
 import { slackToolDefinitions, executeSlackTool } from "./tools/slackTools";
 import { cleanForSpeech } from "./utils/speechUtils";
+import { research } from "./gemini";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -16,21 +17,42 @@ const SYSTEM_INSTRUCTIONS =
   "あなたはAlexaで動く日本語アシスタントです。" +
   "音声で聞きやすいよう、簡潔に答えてください。" +
   "箇条書きや記号は使わず、自然な話し言葉で回答してください。" +
-  "利用者は石井健（1999年4月4日生まれ）か石井奈緒（1999年4月11日生まれ）の夫婦のいずれかです。";
+  "利用者は石井健（1999年4月4日生まれ）か石井奈緒（1999年4月11日生まれ）の夫婦のいずれかです。" +
+  "あなたの学習データは約2年前までのものであり古い。そのため、事実に関する質問・情報を求める質問には、確信がある場合を除いてresearch_webツールを積極的に使って最新情報を確認すること。";
 
 export interface ChatResult {
   text: string;
   responseId?: string;
 }
 
+const researchToolDefinition: OpenAI.Responses.FunctionTool = {
+  type: "function",
+  name: "research_web",
+  description:
+    "最新情報・ニュース・時事・天気・一般知識など、ウェブ検索が必要な質問に答えるときに使う。" +
+    "カレンダー操作・買い物リスト・デバイス操作など他のツールで対応できる場合は使わない。",
+  parameters: {
+    type: "object",
+    properties: {
+      query: { type: "string", description: "検索クエリ（日本語）" },
+    },
+    required: ["query"],
+  },
+};
+
 const CUSTOM_TOOLS = [
   ...shoppingToolDefinitions,
   ...calendarToolDefinitions,
-  ...switchbotToolDefinitions, // empty array when SWITCHBOT_DEVICES / SWITCHBOT_AC_DEVICE_ID unset
+  ...switchbotToolDefinitions,
   ...(process.env.SLACK_WEBHOOK_URL ? slackToolDefinitions : []),
+  ...(process.env.GEMINI_API_KEY ? [researchToolDefinition] : []),
 ];
 
 async function executeToolDispatch(name: string, args: Record<string, unknown>): Promise<string> {
+  if (name === "research_web") {
+    const result = await research(args.query as string);
+    return JSON.stringify({ result });
+  }
   return (
     (await executeShoppingTool(name, args)) ??
     (await executeCalendarTool(name, args)) ??
@@ -48,14 +70,7 @@ export async function chat(
   previousResponseId?: string,
   contextData?: string,
 ): Promise<ChatResult> {
-  const enableWebSearch = process.env.ENABLE_WEB_SEARCH === "true";
-
-  const tools: OpenAI.Responses.ResponseCreateParams["tools"] = [
-    ...CUSTOM_TOOLS,
-    ...(enableWebSearch
-      ? [{ type: "web_search" as const, search_context_size: "medium" as const }]
-      : []),
-  ];
+  const tools: OpenAI.Responses.ResponseCreateParams["tools"] = [...CUSTOM_TOOLS];
 
   const nowJST = new Date().toLocaleString("ja-JP", {
     timeZone: "Asia/Tokyo",
