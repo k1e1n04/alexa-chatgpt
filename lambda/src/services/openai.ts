@@ -23,14 +23,11 @@ export interface ChatResult {
   responseId: string;
 }
 
-const hasSwitchbot = !!(process.env.SWITCHBOT_TOKEN && process.env.SWITCHBOT_AC_DEVICE_ID);
-const hasSlack = !!process.env.SLACK_WEBHOOK_URL;
-
 const CUSTOM_TOOLS = [
   ...shoppingToolDefinitions,
   ...calendarToolDefinitions,
-  ...(hasSwitchbot ? switchbotToolDefinitions : []),
-  ...(hasSlack ? slackToolDefinitions : []),
+  ...switchbotToolDefinitions, // empty array when SWITCHBOT_DEVICES / SWITCHBOT_AC_DEVICE_ID unset
+  ...(process.env.SLACK_WEBHOOK_URL ? slackToolDefinitions : []),
 ];
 
 async function executeToolDispatch(name: string, args: Record<string, unknown>): Promise<string> {
