@@ -98,6 +98,8 @@ export async function chat(
         instructions: SYSTEM_INSTRUCTIONS,
         input: userQuery,
         tools,
+        // tool_choice: "required" で必ずweb検索を実行させる（"auto"だとモデルが学習データで答えてスキップする）
+        ...(tools.length > 0 ? { tool_choice: "required" as const } : {}),
         ...(previousResponseId ? { previous_response_id: previousResponseId } : {}),
       },
       { timeout: RESEARCH_TIMEOUT_MS },
