@@ -38,10 +38,9 @@ export const ChatIntentHandler: RequestHandler = {
   },
   async handle(handlerInput: HandlerInput) {
     const request = handlerInput.requestEnvelope.request as IntentRequest;
-    const query =
-      request.intent.slots?.query?.value ||
-      request.intent.slots?.topic?.value ||
-      "";
+    const rawQuery = request.intent.slots?.query?.value ?? "";
+    const topicQuery = request.intent.slots?.topic?.value ?? "";
+    const query = rawQuery || topicQuery;
 
     const LAUNCH_PHRASES = ["を開いて", "開いて", "を起動して", "起動して"];
     if (!query || LAUNCH_PHRASES.includes(query.trim())) {
@@ -58,7 +57,8 @@ export const ChatIntentHandler: RequestHandler = {
       | undefined;
 
     try {
-      const researchMode = isResearchQuery(query);
+      // topic スロット経由（ワンショットのトピック先行パターン）は常にリサーチモード
+      const researchMode = topicQuery ? true : isResearchQuery(rawQuery);
       if (researchMode) {
         await sendProgressiveResponse(handlerInput, "少々お待ちください。");
       }
