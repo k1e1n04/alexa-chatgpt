@@ -37,12 +37,14 @@ const CUSTOM_TOOLS: OpenAI.Responses.FunctionTool[] = [
   },
   {
     type: "function",
-    name: "add_shopping_item",
-    description: "pairpanel のお買い物リストに商品を1件追加する",
+    name: "add_shopping_items",
+    description: "pairpanel のお買い物リストに商品を追加する。1件でも複数件でもこのツールを使う",
     parameters: {
       type: "object",
-      properties: { name: { type: "string", description: "追加する商品名" } },
-      required: ["name"],
+      properties: {
+        names: { type: "array", items: { type: "string" }, description: "追加する商品名のリスト" },
+      },
+      required: ["names"],
     },
   },
   {

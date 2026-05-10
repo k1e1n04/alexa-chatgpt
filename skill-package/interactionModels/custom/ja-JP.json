@@ -9,6 +9,10 @@
             {
               "name": "query",
               "type": "AMAZON.SearchQuery"
+            },
+            {
+              "name": "topic",
+              "type": "TOPIC_QUERY"
             }
           ],
           "samples": [
@@ -30,7 +34,12 @@
             "を使って {query}",
             "について教えて {query}",
             "を調べて {query}",
-            "を解決して {query}"
+            "を解決して {query}",
+            "{topic} について調べて",
+            "{topic} を調べて",
+            "{topic} って何",
+            "{topic} とは",
+            "{topic} について教えて"
           ]
         },
         {
@@ -50,7 +59,23 @@
           "samples": ["つかいかた", "ヘルプ", "なにができるの"]
         }
       ],
-      "types": []
+      "types": [
+        {
+          "name": "TOPIC_QUERY",
+          "values": [
+            {"name": {"value": "嵐"}},
+            {"name": {"value": "天気"}},
+            {"name": {"value": "ニュース"}},
+            {"name": {"value": "東京"}},
+            {"name": {"value": "日本"}},
+            {"name": {"value": "料理"}},
+            {"name": {"value": "映画"}},
+            {"name": {"value": "音楽"}},
+            {"name": {"value": "スポーツ"}},
+            {"name": {"value": "歴史"}}
+          ]
+        }
+      ]
     }
   }
 }

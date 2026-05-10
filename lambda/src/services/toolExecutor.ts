@@ -11,10 +11,11 @@ export async function executeTool(
       if (items.length === 0) return JSON.stringify({ items: [], message: "お買い物リストは空です" });
       return JSON.stringify({ items });
     }
-    case "add_shopping_item": {
-      const itemName = args.name as string;
-      const added = await pairpanel.addShoppingItem(itemName);
-      return JSON.stringify({ added, message: `${added.name}をリストに追加しました` });
+    case "add_shopping_items": {
+      const names = args.names as string[];
+      const added = await Promise.all(names.map((n) => pairpanel.addShoppingItem(n)));
+      const nameList = added.map((i) => i.name).join("、");
+      return JSON.stringify({ added, message: `${nameList}をリストに追加しました` });
     }
     case "complete_all_shopping": {
       const ids = args.ids as string[];

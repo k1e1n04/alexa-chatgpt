@@ -12,15 +12,17 @@ function isResearchQuery(query: string): boolean {
   return false;
 }
 
-async function sendProgressiveResponse(handlerInput: HandlerInput, speech: string): Promise<void> {
+async function sendProgressiveResponse(handlerInput: HandlerInput, speech: string): Promise<boolean> {
   try {
     const directiveClient = handlerInput.serviceClientFactory!.getDirectiveServiceClient();
     await directiveClient.enqueue({
       header: { requestId: handlerInput.requestEnvelope.request.requestId },
       directive: { type: "VoicePlayer.Speak", speech },
     });
-  } catch {
-    // Progressive response はベストエフォートなのでエラーは無視する
+    return true;
+  } catch (e) {
+    console.warn("[progressive-response] failed:", e);
+    return false;
   }
 }
 
@@ -37,7 +39,9 @@ export const ChatIntentHandler: RequestHandler = {
   async handle(handlerInput: HandlerInput) {
     const request = handlerInput.requestEnvelope.request as IntentRequest;
     const query =
-      request.intent.slots?.query?.value ?? "";
+      request.intent.slots?.query?.value ||
+      request.intent.slots?.topic?.value ||
+      "";
 
     const LAUNCH_PHRASES = ["を開いて", "開いて", "を起動して", "起動して"];
     if (!query || LAUNCH_PHRASES.includes(query.trim())) {
