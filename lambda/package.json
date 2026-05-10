@@ -8,8 +8,8 @@
     "build:dev": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=index.js",
     "watch": "npm run build:dev -- --watch"
   },
-  "dependencies": {},
   "devDependencies": {
+    "@google/genai": "^2.0.1",
     "@types/node": "^20.0.0",
     "ask-sdk": "^2.14.0",
     "esbuild": "^0.24.0",

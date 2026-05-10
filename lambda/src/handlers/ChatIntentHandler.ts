@@ -1,11 +1,15 @@
 import { HandlerInput, RequestHandler } from "ask-sdk-core";
 import { IntentRequest } from "ask-sdk-model";
 import { chat } from "../services/openai";
+import { research } from "../services/gemini";
 
-const RESEARCH_KEYWORDS = ["調べて", "調べといて", "検索して", "探して", "リサーチして"];
+const RESEARCH_KEYWORDS_SUFFIX = ["調べて", "調べといて", "検索して", "探して", "リサーチして", "について", "とは何", "とは", "って何"];
+const RESEARCH_KEYWORDS_CONTAINS = ["ってどんな", "ってどういう", "について教えて"];
 
 function isResearchQuery(query: string): boolean {
-  return RESEARCH_KEYWORDS.some((kw) => query.endsWith(kw));
+  if (RESEARCH_KEYWORDS_SUFFIX.some((kw) => query.endsWith(kw))) return true;
+  if (RESEARCH_KEYWORDS_CONTAINS.some((kw) => query.includes(kw))) return true;
+  return false;
 }
 
 async function sendProgressiveResponse(handlerInput: HandlerInput, speech: string): Promise<void> {
@@ -54,13 +58,25 @@ export const ChatIntentHandler: RequestHandler = {
       if (researchMode) {
         await sendProgressiveResponse(handlerInput, "少々お待ちください。");
       }
-      const result = await chat(query, previousResponseId, researchMode);
 
-      sessionAttributes[SESSION_KEY_RESPONSE_ID] = result.responseId;
-      handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+      let responseText: string;
+      let responseId: string | undefined;
+
+      if (researchMode && process.env.GEMINI_API_KEY) {
+        responseText = await research(query);
+      } else {
+        const result = await chat(query, previousResponseId);
+        responseText = result.text;
+        responseId = result.responseId;
+      }
+
+      if (responseId) {
+        sessionAttributes[SESSION_KEY_RESPONSE_ID] = responseId;
+        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
+      }
 
       return handlerInput.responseBuilder
-        .speak(result.text)
+        .speak(responseText)
         .reprompt("他に何か聞きたいことはありますか？")
         .getResponse();
     } catch (error) {

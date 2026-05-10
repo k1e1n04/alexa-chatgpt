@@ -11,8 +11,7 @@ export const LaunchRequestHandler: RequestHandler = {
     );
   },
   handle(handlerInput: HandlerInput) {
-    const speakOutput =
-      "GPTアシスタントです。何でも聞いてください。";
+    const speakOutput = "はい、どうぞ。";
 
     return handlerInput.responseBuilder
       .speak(speakOutput)

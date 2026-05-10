@@ -13,6 +13,7 @@ const SYSTEM_INSTRUCTIONS =
   "音声で聞きやすいよう、簡潔に答えてください。" +
   "箇条書きや記号は使わず、自然な話し言葉で回答してください。";
 
+
 function cleanForSpeech(text: string): string {
   return text
     .replace(/\[([^\]]+)\]\(https?:\/\/[^\)]+\)/g, "$1") // [テキスト](URL) → テキストだけ残す
@@ -78,32 +79,13 @@ const CUSTOM_TOOLS: OpenAI.Responses.FunctionTool[] = [
   },
 ];
 
-const RESEARCH_TIMEOUT_MS = 15000;
 const DEFAULT_TIMEOUT_MS = 3500;
 
 export async function chat(
   userQuery: string,
   previousResponseId?: string,
-  researchMode = false,
 ): Promise<ChatResult> {
   const enableWebSearch = process.env.ENABLE_WEB_SEARCH === "true";
-
-  if (researchMode) {
-    const tools: OpenAI.Responses.ResponseCreateParams["tools"] = enableWebSearch
-      ? [{ type: "web_search" as const, search_context_size: "medium" as const }]
-      : [];
-    const response = await openai.responses.create(
-      {
-        model: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
-        instructions: SYSTEM_INSTRUCTIONS,
-        input: userQuery,
-        tools,
-        ...(previousResponseId ? { previous_response_id: previousResponseId } : {}),
-      },
-      { timeout: RESEARCH_TIMEOUT_MS },
-    );
-    return { text: cleanForSpeech(response.output_text), responseId: response.id };
-  }
 
   const tools: OpenAI.Responses.ResponseCreateParams["tools"] = [
     ...CUSTOM_TOOLS,
