@@ -21,12 +21,15 @@ export const ChatIntentHandler: RequestHandler = {
   },
   async handle(handlerInput: HandlerInput) {
     const request = handlerInput.requestEnvelope.request as IntentRequest;
-    const { query, researchMode, briefingMode, isLaunchPhrase } = buildQuery({
+    const slots = {
       rawQuery: request.intent.slots?.query?.value ?? "",
       topicQuery: request.intent.slots?.topic?.value ?? "",
       shopItem: request.intent.slots?.shopItem?.value ?? "",
       shopAction: request.intent.slots?.shopAction?.value ?? "",
-    });
+    };
+    console.info("[slots]", JSON.stringify(slots));
+    const { query, researchMode, briefingMode, isLaunchPhrase } = buildQuery(slots);
+    console.info("[routing]", JSON.stringify({ query, researchMode, briefingMode }));
 
     if (isLaunchPhrase) {
       return handlerInput.responseBuilder
