@@ -16,7 +16,8 @@
         "userConfig": {
           "runtime": "nodejs20.x",
           "handler": "index.handler",
-          "templateType": "cfn"
+          "templateType": "cfn",
+          "awsRegion": "ap-northeast-1"
         }
       }
     }
