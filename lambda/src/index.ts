@@ -6,6 +6,7 @@ import { FallbackIntentHandler } from "./handlers/FallbackIntentHandler";
 import { CancelAndStopHandler, SessionEndedHandler } from "./handlers/CancelAndStopHandler";
 
 export const handler = SkillBuilders.custom()
+  .withApiClient(new (require("ask-sdk-core").DefaultApiClient)())
   .addRequestHandlers(
     LaunchRequestHandler,
     ChatIntentHandler,

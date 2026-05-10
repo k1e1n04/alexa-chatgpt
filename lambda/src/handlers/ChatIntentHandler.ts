@@ -2,6 +2,24 @@ import { HandlerInput, RequestHandler } from "ask-sdk-core";
 import { IntentRequest } from "ask-sdk-model";
 import { chat } from "../services/openai";
 
+const RESEARCH_KEYWORDS = ["調べて", "調べといて", "検索して", "探して", "リサーチして"];
+
+function isResearchQuery(query: string): boolean {
+  return RESEARCH_KEYWORDS.some((kw) => query.endsWith(kw));
+}
+
+async function sendProgressiveResponse(handlerInput: HandlerInput, speech: string): Promise<void> {
+  try {
+    const directiveClient = handlerInput.serviceClientFactory!.getDirectiveServiceClient();
+    await directiveClient.enqueue({
+      header: { requestId: handlerInput.requestEnvelope.request.requestId },
+      directive: { type: "VoicePlayer.Speak", speech },
+    });
+  } catch {
+    // Progressive response はベストエフォートなのでエラーは無視する
+  }
+}
+
 const SESSION_KEY_RESPONSE_ID = "previousResponseId";
 
 export const ChatIntentHandler: RequestHandler = {
@@ -32,7 +50,11 @@ export const ChatIntentHandler: RequestHandler = {
       | undefined;
 
     try {
-      const result = await chat(query, previousResponseId);
+      const researchMode = isResearchQuery(query);
+      if (researchMode) {
+        await sendProgressiveResponse(handlerInput, "少々お待ちください。");
+      }
+      const result = await chat(query, previousResponseId, researchMode);
 
       sessionAttributes[SESSION_KEY_RESPONSE_ID] = result.responseId;
       handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
