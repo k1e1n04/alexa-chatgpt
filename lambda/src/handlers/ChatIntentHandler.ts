@@ -15,10 +15,13 @@ function isResearchQuery(query: string): boolean {
 async function sendProgressiveResponse(handlerInput: HandlerInput, speech: string): Promise<boolean> {
   try {
     const directiveClient = handlerInput.serviceClientFactory!.getDirectiveServiceClient();
-    await directiveClient.enqueue({
-      header: { requestId: handlerInput.requestEnvelope.request.requestId },
-      directive: { type: "VoicePlayer.Speak", speech },
-    });
+    await Promise.race([
+      directiveClient.enqueue({
+        header: { requestId: handlerInput.requestEnvelope.request.requestId },
+        directive: { type: "VoicePlayer.Speak", speech },
+      }),
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 1000)),
+    ]);
     return true;
   } catch (e) {
     console.warn("[progressive-response] failed:", e);
@@ -40,7 +43,25 @@ export const ChatIntentHandler: RequestHandler = {
     const request = handlerInput.requestEnvelope.request as IntentRequest;
     const rawQuery = request.intent.slots?.query?.value ?? "";
     const topicQuery = request.intent.slots?.topic?.value ?? "";
-    const query = rawQuery || topicQuery;
+    const shopItem = request.intent.slots?.shopItem?.value ?? "";
+    const shopAction = request.intent.slots?.shopAction?.value ?? "";
+
+    let query: string;
+    let researchMode: boolean;
+
+    if (shopItem) {
+      query = `${shopItem}を買い物リストに追加して`;
+      researchMode = false;
+    } else if (shopAction) {
+      query = `買い物リストを${shopAction}`;
+      researchMode = false;
+    } else if (topicQuery) {
+      query = topicQuery;
+      researchMode = true;
+    } else {
+      query = rawQuery;
+      researchMode = isResearchQuery(rawQuery);
+    }
 
     const LAUNCH_PHRASES = ["を開いて", "開いて", "を起動して", "起動して"];
     if (!query || LAUNCH_PHRASES.includes(query.trim())) {
@@ -57,8 +78,6 @@ export const ChatIntentHandler: RequestHandler = {
       | undefined;
 
     try {
-      // topic スロット経由（ワンショットのトピック先行パターン）は常にリサーチモード
-      const researchMode = topicQuery ? true : isResearchQuery(rawQuery);
       if (researchMode) {
         await sendProgressiveResponse(handlerInput, "少々お待ちください。");
       }

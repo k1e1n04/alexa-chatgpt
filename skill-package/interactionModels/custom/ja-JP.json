@@ -13,6 +13,14 @@
             {
               "name": "topic",
               "type": "TOPIC_QUERY"
+            },
+            {
+              "name": "shopItem",
+              "type": "SHOPPING_ITEM"
+            },
+            {
+              "name": "shopAction",
+              "type": "SHOPPING_ACTION"
             }
           ],
           "samples": [
@@ -39,7 +47,13 @@
             "{topic} を調べて",
             "{topic} って何",
             "{topic} とは",
-            "{topic} について教えて"
+            "{topic} について教えて",
+            "{shopItem} を買い物リストに追加して",
+            "{shopItem} を追加して",
+            "買い物リストに {shopItem} を追加して",
+            "買い物リストを {shopAction}",
+            "お買い物リストを {shopAction}",
+            "お買い物を {shopAction}"
           ]
         },
         {
@@ -73,6 +87,36 @@
             {"name": {"value": "音楽"}},
             {"name": {"value": "スポーツ"}},
             {"name": {"value": "歴史"}}
+          ]
+        },
+        {
+          "name": "SHOPPING_ITEM",
+          "values": [
+            {"name": {"value": "牛乳"}},
+            {"name": {"value": "卵"}},
+            {"name": {"value": "パン"}},
+            {"name": {"value": "肉"}},
+            {"name": {"value": "野菜"}},
+            {"name": {"value": "果物"}},
+            {"name": {"value": "お菓子"}},
+            {"name": {"value": "飲み物"}},
+            {"name": {"value": "豆腐"}},
+            {"name": {"value": "醤油"}},
+            {"name": {"value": "米"}},
+            {"name": {"value": "バター"}},
+            {"name": {"value": "チーズ"}},
+            {"name": {"value": "トマト"}},
+            {"name": {"value": "玉ねぎ"}}
+          ]
+        },
+        {
+          "name": "SHOPPING_ACTION",
+          "values": [
+            {"name": {"value": "見せて"}},
+            {"name": {"value": "教えて"}},
+            {"name": {"value": "確認して"}},
+            {"name": {"value": "完了して"}},
+            {"name": {"value": "終わらせて"}}
           ]
         }
       ]

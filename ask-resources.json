@@ -17,7 +17,8 @@
           "runtime": "nodejs20.x",
           "handler": "index.handler",
           "templateType": "cfn",
-          "awsRegion": "ap-northeast-1"
+          "awsRegion": "ap-northeast-1",
+          "timeout": 30
         }
       }
     }
