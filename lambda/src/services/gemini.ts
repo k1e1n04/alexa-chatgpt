@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { cleanForSpeech } from "./utils/speechUtils";
 
 const SYSTEM_INSTRUCTIONS =
   "あなたはAlexaで動く日本語アシスタントです。" +
@@ -6,15 +7,6 @@ const SYSTEM_INSTRUCTIONS =
   "箇条書きや記号は使わず、自然な話し言葉で回答してください。";
 
 const RESEARCH_TIMEOUT_MS = 15000;
-
-function cleanForSpeech(text: string): string {
-  return text
-    .replace(/\[([^\]]+)\]\(https?:\/\/[^\)]+\)/g, "$1")
-    .replace(/https?:\/\/\S+/g, "")
-    .replace(/\[\d+\]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
@@ -29,7 +21,7 @@ export async function research(query: string): Promise<string> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY ?? "" });
 
   const responsePromise = ai.models.generateContent({
-    model: process.env.GEMINI_MODEL ?? "gemini-flash-latest",
+    model: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
     contents: query,
     config: {
       tools: [{ googleSearch: {} }],

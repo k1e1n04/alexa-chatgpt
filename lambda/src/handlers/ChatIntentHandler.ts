@@ -2,32 +2,8 @@ import { HandlerInput, RequestHandler } from "ask-sdk-core";
 import { IntentRequest } from "ask-sdk-model";
 import { chat } from "../services/openai";
 import { research } from "../services/gemini";
-
-const RESEARCH_KEYWORDS_SUFFIX = ["調べて", "調べといて", "検索して", "探して", "リサーチして", "について", "とは何", "とは", "って何"];
-const RESEARCH_KEYWORDS_CONTAINS = ["ってどんな", "ってどういう", "について教えて"];
-
-function isResearchQuery(query: string): boolean {
-  if (RESEARCH_KEYWORDS_SUFFIX.some((kw) => query.endsWith(kw))) return true;
-  if (RESEARCH_KEYWORDS_CONTAINS.some((kw) => query.includes(kw))) return true;
-  return false;
-}
-
-async function sendProgressiveResponse(handlerInput: HandlerInput, speech: string): Promise<boolean> {
-  try {
-    const directiveClient = handlerInput.serviceClientFactory!.getDirectiveServiceClient();
-    await Promise.race([
-      directiveClient.enqueue({
-        header: { requestId: handlerInput.requestEnvelope.request.requestId },
-        directive: { type: "VoicePlayer.Speak", speech },
-      }),
-      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), 1000)),
-    ]);
-    return true;
-  } catch (e) {
-    console.warn("[progressive-response] failed:", e);
-    return false;
-  }
-}
+import { buildQuery } from "../chat/queryBuilder";
+import { sendProgressiveResponse } from "../chat/progressiveResponse";
 
 const SESSION_KEY_RESPONSE_ID = "previousResponseId";
 
@@ -41,41 +17,22 @@ export const ChatIntentHandler: RequestHandler = {
   },
   async handle(handlerInput: HandlerInput) {
     const request = handlerInput.requestEnvelope.request as IntentRequest;
-    const rawQuery = request.intent.slots?.query?.value ?? "";
-    const topicQuery = request.intent.slots?.topic?.value ?? "";
-    const shopItem = request.intent.slots?.shopItem?.value ?? "";
-    const shopAction = request.intent.slots?.shopAction?.value ?? "";
+    const { query, researchMode, isLaunchPhrase } = buildQuery({
+      rawQuery: request.intent.slots?.query?.value ?? "",
+      topicQuery: request.intent.slots?.topic?.value ?? "",
+      shopItem: request.intent.slots?.shopItem?.value ?? "",
+      shopAction: request.intent.slots?.shopAction?.value ?? "",
+    });
 
-    let query: string;
-    let researchMode: boolean;
-
-    if (shopItem) {
-      query = `${shopItem}を買い物リストに追加して`;
-      researchMode = false;
-    } else if (shopAction) {
-      query = `買い物リストを${shopAction}`;
-      researchMode = false;
-    } else if (topicQuery) {
-      query = topicQuery;
-      researchMode = true;
-    } else {
-      query = rawQuery;
-      researchMode = isResearchQuery(rawQuery);
-    }
-
-    const LAUNCH_PHRASES = ["を開いて", "開いて", "を起動して", "起動して"];
-    if (!query || LAUNCH_PHRASES.includes(query.trim())) {
+    if (isLaunchPhrase) {
       return handlerInput.responseBuilder
         .speak("はい、どうぞ。")
         .reprompt("何か聞きたいことはありますか？")
         .getResponse();
     }
 
-    const sessionAttributes =
-      handlerInput.attributesManager.getSessionAttributes();
-    const previousResponseId = sessionAttributes[SESSION_KEY_RESPONSE_ID] as
-      | string
-      | undefined;
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const previousResponseId = sessionAttributes[SESSION_KEY_RESPONSE_ID] as string | undefined;
 
     try {
       if (researchMode) {
