@@ -1,4 +1,4 @@
-import { isResearchQuery, isBriefingQuery } from "./routingDecider";
+import { isResearchQuery, isBriefingQuery, isCommandQuery } from "./routingDecider";
 
 export interface SlotValues {
   rawQuery: string;
@@ -33,7 +33,7 @@ export function buildQuery(slots: SlotValues): QueryBuildResult {
     briefingMode = false;
   } else if (topicQuery) {
     query = topicQuery;
-    researchMode = true;
+    researchMode = !isCommandQuery(topicQuery);
     briefingMode = false;
   } else {
     query = rawQuery;
