@@ -1,10 +1,12 @@
 const BASE_URL = process.env.PAIRPANEL_API_URL ?? "";
+const API_GATEWAY_KEY = process.env.PAIRPANEL_API_GATEWAY_KEY ?? "";
 const USER_ID = process.env.PAIRPANEL_USER_ID ?? "";
 const PAIR_ID = process.env.PAIRPANEL_PAIR_ID ?? "";
 
 const headers = (): Record<string, string> => {
   const h: Record<string, string> = {
     "Content-Type": "application/json",
+    "X-Api-Key": API_GATEWAY_KEY,
     "X-User-Id": USER_ID,
   };
   if (PAIR_ID) h["X-Pair-Id"] = PAIR_ID;
