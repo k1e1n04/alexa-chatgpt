@@ -12,14 +12,13 @@
             }
           ],
           "samples": [
-            "{query}して",
-            "{query}ください",
-            "{query}は",
-            "{query}ですか",
             "チャッピー {query}",
+            "ねえ {query}",
+            "あのう {query}",
             "きいて {query}",
             "おしえて {query}",
             "しらべて {query}",
+            "ついでに {query}",
             "GPT {query}",
             "で {query}",
             "を使って {query}",
