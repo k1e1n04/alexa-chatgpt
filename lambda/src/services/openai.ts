@@ -13,6 +13,11 @@ const SYSTEM_INSTRUCTIONS =
   "音声で聞きやすいよう、簡潔に答えてください。" +
   "箇条書きや記号は使わず、自然な話し言葉で回答してください。";
 
+const RESEARCH_INSTRUCTIONS =
+  SYSTEM_INSTRUCTIONS +
+  "Web検索を行う際は、ユーザーが言及した固有名詞（人名・グループ名・作品名・商品名など）を必ず検索クエリに含めること。" +
+  "例：「ミルクというアイドルグループ」→「ミルク アイドルグループ」で検索する。";
+
 function cleanForSpeech(text: string): string {
   return text
     .replace(/\[([^\]]+)\]\(https?:\/\/[^\)]+\)/g, "$1") // [テキスト](URL) → テキストだけ残す
@@ -95,7 +100,7 @@ export async function chat(
     const response = await openai.responses.create(
       {
         model: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
-        instructions: SYSTEM_INSTRUCTIONS,
+        instructions: RESEARCH_INSTRUCTIONS,
         input: userQuery,
         tools,
         // tool_choice: "required" で必ずweb検索を実行させる（"auto"だとモデルが学習データで答えてスキップする）
@@ -104,6 +109,8 @@ export async function chat(
       },
       { timeout: RESEARCH_TIMEOUT_MS },
     );
+    const outputTypes = response.output.map((o) => o.type).join(",");
+    console.log(`[research] output_types=${outputTypes} text=${response.output_text.slice(0, 200)}`);
     return { text: cleanForSpeech(response.output_text), responseId: response.id };
   }
 
