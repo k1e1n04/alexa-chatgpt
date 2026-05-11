@@ -42,6 +42,30 @@ export async function getTodayEvents(): Promise<CalendarEvent[]> {
   }));
 }
 
+export async function getEventsByDate(dateStr: string): Promise<CalendarEvent[]> {
+  const calendar = getCalendar();
+  const date = new Date(dateStr);
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const res = await calendar.events.list({
+    calendarId: CALENDAR_ID,
+    timeMin: startOfDay.toISOString(),
+    timeMax: endOfDay.toISOString(),
+    singleEvents: true,
+    orderBy: "startTime",
+    timeZone: TIME_ZONE,
+  });
+
+  return (res.data.items ?? []).map((e) => ({
+    title: e.summary ?? "(タイトルなし)",
+    start: e.start?.dateTime ?? e.start?.date ?? "",
+    end: e.end?.dateTime ?? e.end?.date ?? "",
+  }));
+}
+
 export async function addCalendarEvent(
   title: string,
   startTime: string,

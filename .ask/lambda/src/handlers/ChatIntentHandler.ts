@@ -1,30 +1,14 @@
 import { HandlerInput, RequestHandler } from "ask-sdk-core";
 import { IntentRequest } from "ask-sdk-model";
 import { chat } from "../services/openai";
-import { research } from "../services/gemini";
-
-const RESEARCH_KEYWORDS_SUFFIX = ["調べて", "調べといて", "検索して", "探して", "リサーチして", "について", "とは何", "とは", "って何"];
-const RESEARCH_KEYWORDS_CONTAINS = ["ってどんな", "ってどういう", "について教えて"];
-
-function isResearchQuery(query: string): boolean {
-  if (RESEARCH_KEYWORDS_SUFFIX.some((kw) => query.endsWith(kw))) return true;
-  if (RESEARCH_KEYWORDS_CONTAINS.some((kw) => query.includes(kw))) return true;
-  return false;
-}
-
-async function sendProgressiveResponse(handlerInput: HandlerInput, speech: string): Promise<void> {
-  try {
-    const directiveClient = handlerInput.serviceClientFactory!.getDirectiveServiceClient();
-    await directiveClient.enqueue({
-      header: { requestId: handlerInput.requestEnvelope.request.requestId },
-      directive: { type: "VoicePlayer.Speak", speech },
-    });
-  } catch {
-    // Progressive response はベストエフォートなのでエラーは無視する
-  }
-}
+import { buildQuery } from "../chat/queryBuilder";
+import { sendProgressiveResponse } from "../chat/progressiveResponse";
+import { getBriefingData, buildBriefingContext } from "../services/briefing";
+import type { ConversationTurn } from "../services/memory";
 
 const SESSION_KEY_RESPONSE_ID = "previousResponseId";
+const SESSION_KEY_MEMORY = "memoryContext";
+const SESSION_KEY_LOG = "conversationLog";
 
 export const ChatIntentHandler: RequestHandler = {
   canHandle(handlerInput: HandlerInput): boolean {
@@ -36,56 +20,77 @@ export const ChatIntentHandler: RequestHandler = {
   },
   async handle(handlerInput: HandlerInput) {
     const request = handlerInput.requestEnvelope.request as IntentRequest;
-    const query =
-      request.intent.slots?.query?.value ?? "";
+    const slots = {
+      rawQuery: request.intent.slots?.query?.value ?? "",
+      topicQuery: request.intent.slots?.topic?.value ?? "",
+      shopItem: request.intent.slots?.shopItem?.value ?? "",
+      shopAction: request.intent.slots?.shopAction?.value ?? "",
+    };
+    console.info("[slots]", JSON.stringify(slots));
+    const { query, briefingMode, isLaunchPhrase } = buildQuery(slots);
+    console.info("[routing]", JSON.stringify({ query, briefingMode }));
 
-    const LAUNCH_PHRASES = ["を開いて", "開いて", "を起動して", "起動して"];
-    if (!query || LAUNCH_PHRASES.includes(query.trim())) {
+    if (isLaunchPhrase) {
       return handlerInput.responseBuilder
         .speak("はい、どうぞ。")
         .reprompt("何か聞きたいことはありますか？")
         .getResponse();
     }
 
-    const sessionAttributes =
-      handlerInput.attributesManager.getSessionAttributes();
-    const previousResponseId = sessionAttributes[SESSION_KEY_RESPONSE_ID] as
-      | string
-      | undefined;
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const previousResponseId = sessionAttributes[SESSION_KEY_RESPONSE_ID] as string | undefined;
+    const memoryContext = sessionAttributes[SESSION_KEY_MEMORY] as string | undefined;
+    const conversationLog = (sessionAttributes[SESSION_KEY_LOG] as ConversationTurn[]) ?? [];
 
     try {
-      const researchMode = isResearchQuery(query);
-      if (researchMode) {
-        await sendProgressiveResponse(handlerInput, "少々お待ちください。");
-      }
+      await sendProgressiveResponse(handlerInput, "少々お待ちください。");
 
       let responseText: string;
       let responseId: string | undefined;
+      let loggedQuery = query;
 
-      if (researchMode && process.env.GEMINI_API_KEY) {
-        responseText = await research(query);
+      if (briefingMode) {
+        const briefingData = await getBriefingData();
+        const contextData = buildBriefingContext(briefingData);
+        loggedQuery = "今日のブリーフィング";
+        const briefingQuery = "今日のブリーフィングをお願いします。天気と予定を読み上げ、今日の気温に合わせた服装アドバイスも教えてください。";
+        const contextWithMemory = memoryContext
+          ? `${contextData}\n\n前回の会話コンテキスト: ${memoryContext}`
+          : contextData;
+        const result = await chat(briefingQuery, previousResponseId, contextWithMemory);
+        responseText = result.text;
+        responseId = result.responseId;
       } else {
-        const result = await chat(query, previousResponseId);
+        const contextData = memoryContext ? `前回の会話コンテキスト: ${memoryContext}` : undefined;
+        const result = await chat(query, previousResponseId, contextData);
         responseText = result.text;
         responseId = result.responseId;
       }
 
+      conversationLog.push({ user: loggedQuery, assistant: responseText });
+      sessionAttributes[SESSION_KEY_LOG] = conversationLog;
+
       if (responseId) {
         sessionAttributes[SESSION_KEY_RESPONSE_ID] = responseId;
-        handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
       }
+      handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
 
       return handlerInput.responseBuilder
         .speak(responseText)
         .reprompt("他に何か聞きたいことはありますか？")
         .getResponse();
     } catch (error) {
-      console.error("OpenAI API error:", error);
-      const isTimeout =
-        error instanceof Error &&
-        (error.message.includes("timeout") || error.message.includes("timed out"));
+      console.error("API error:", error);
+      const msg = error instanceof Error ? error.message : String(error);
+      const isTimeout = msg.includes("timeout") || msg.includes("timed out");
+      const isRateLimit = msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota");
+      const isBusy = msg.includes("503") || msg.includes("UNAVAILABLE") || msg.includes("high demand");
       const message = isTimeout
         ? "少し時間がかかっています。もう一度同じ質問をしてみてください。"
+        : isRateLimit
+        ? "調査機能の利用上限に達しました。しばらく時間をおいてから試してください。"
+        : isBusy
+        ? "ただいま混雑しています。少し待ってからもう一度試してください。"
         : "エラーが発生しました。もう一度試してみてください。";
       return handlerInput.responseBuilder
         .speak(message)

@@ -3,6 +3,7 @@ import { IntentRequest } from "ask-sdk-model";
 import { saveMemory, ConversationTurn } from "../services/memory";
 
 const SESSION_KEY_LOG = "conversationLog";
+const SESSION_KEY_MEMORY = "memoryContext";
 
 export const CancelAndStopHandler: RequestHandler = {
   canHandle(handlerInput: HandlerInput): boolean {
@@ -15,8 +16,9 @@ export const CancelAndStopHandler: RequestHandler = {
     const userId = handlerInput.requestEnvelope.context.System.user.userId;
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const log = (sessionAttributes[SESSION_KEY_LOG] as ConversationTurn[]) ?? [];
+    const memoryContext = sessionAttributes[SESSION_KEY_MEMORY] as string | undefined;
 
-    await saveMemory(userId, log);
+    await saveMemory(userId, log, memoryContext);
 
     return handlerInput.responseBuilder
       .speak("またね！")
@@ -29,7 +31,16 @@ export const SessionEndedHandler: RequestHandler = {
   canHandle(handlerInput: HandlerInput): boolean {
     return handlerInput.requestEnvelope.request.type === "SessionEndedRequest";
   },
-  handle(handlerInput: HandlerInput) {
+  async handle(handlerInput: HandlerInput) {
+    const userId = handlerInput.requestEnvelope.context.System.user.userId;
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const log = (sessionAttributes[SESSION_KEY_LOG] as ConversationTurn[]) ?? [];
+    const memoryContext = sessionAttributes[SESSION_KEY_MEMORY] as string | undefined;
+
+    if (log.length > 0) {
+      await saveMemory(userId, log, memoryContext);
+    }
+
     return handlerInput.responseBuilder.getResponse();
   },
 };
