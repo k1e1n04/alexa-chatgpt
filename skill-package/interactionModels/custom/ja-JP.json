@@ -49,8 +49,12 @@
             "を調べて {query}",
             "を解決して {query}",
             "{shopItem} を買い物リストに追加して",
-            "{shopItem} を追加して",
             "買い物リストに {shopItem} を追加して",
+            "{query} の予定を入れて",
+            "{query} を予定に入れて",
+            "予定を入れて {query}",
+            "{query} をカレンダーに追加して",
+            "カレンダーに {query} を追加して",
             "買い物リストを {shopAction}",
             "お買い物リストを {shopAction}",
             "お買い物を {shopAction}"
