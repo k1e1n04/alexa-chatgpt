@@ -18,6 +18,14 @@ export interface ShoppingItem {
   name: string;
 }
 
+export interface PairpanelNotification {
+  kind: "briefing" | "reminder" | "task-result" | "alert";
+  title: string;
+  body: string;
+  severity: "low" | "mid" | "high" | "critical";
+  expiresAt?: string;
+}
+
 export async function getShoppingList(): Promise<ShoppingItem[]> {
   const res = await fetch(`${BASE_URL}/api/v1/alexa/shopping`, {
     headers: headers(),
@@ -48,4 +56,18 @@ export async function completeAllShopping(ids: string[]): Promise<void> {
     signal: AbortSignal.timeout(5000),
   });
   if (!res.ok) throw new Error(`completeAllShopping failed: ${res.status}`);
+}
+
+export async function postNotification(
+  notification: PairpanelNotification,
+): Promise<void> {
+  const res = await fetch(`${BASE_URL}/api/v1/alexa/notifications`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(notification),
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!res.ok) {
+    console.warn(`[pairpanel] postNotification failed: ${res.status}`);
+  }
 }
