@@ -1,4 +1,4 @@
-import { google } from "googleapis";
+import { google } from "@googleapis/calendar";
 
 const CALENDAR_ID = "primary";
 const TIME_ZONE = "Asia/Tokyo";
