@@ -6,12 +6,14 @@ export const shoppingToolDefinitions: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "get_shopping_list",
     description: "pairpanel のお買い物リストを取得する",
+    strict: false,
     parameters: { type: "object", properties: {}, required: [] },
   },
   {
     type: "function",
     name: "add_shopping_items",
     description: "pairpanel のお買い物リストに商品を追加する。1件でも複数件でもこのツールを使う",
+    strict: false,
     parameters: {
       type: "object",
       properties: {
@@ -24,6 +26,7 @@ export const shoppingToolDefinitions: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "complete_all_shopping",
     description: "指定した ID のお買い物を一括完了する。事前に get_shopping_list で ID を取得すること",
+    strict: false,
     parameters: {
       type: "object",
       properties: {

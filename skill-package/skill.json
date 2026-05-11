@@ -33,6 +33,11 @@
         }
       }
     },
+    "permissions": [
+      {
+        "name": "alexa::alerts:reminders:skill:readwrite"
+      }
+    ],
     "privacyAndCompliance": {
       "allowsPurchases": false,
       "usesPersonalInfo": false,

@@ -49,3 +49,27 @@ export async function completeAllShopping(ids: string[]): Promise<void> {
   });
   if (!res.ok) throw new Error(`completeAllShopping failed: ${res.status}`);
 }
+
+export interface PairpanelNotification {
+  kind: "briefing" | "reminder" | "task-result" | "alert";
+  title: string;
+  body: string;
+  severity: "low" | "mid" | "high" | "critical";
+  expiresAt?: string;
+}
+
+export async function postNotification(notification: PairpanelNotification): Promise<void> {
+  if (!BASE_URL) {
+    console.info("[pairpanel-notify] PAIRPANEL_API_URL not set, skipping");
+    return;
+  }
+  const res = await fetch(`${BASE_URL}/api/v1/notifications`, {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify(notification),
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!res.ok) {
+    console.warn("[pairpanel-notify] failed:", res.status);
+  }
+}

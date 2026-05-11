@@ -37,6 +37,7 @@ export const ChatIntentHandler: RequestHandler = {
         .getResponse();
     }
 
+    const userId = handlerInput.requestEnvelope.context.System.user.userId;
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const previousResponseId = sessionAttributes[SESSION_KEY_RESPONSE_ID] as string | undefined;
     const memoryContext = sessionAttributes[SESSION_KEY_MEMORY] as string | undefined;
@@ -57,12 +58,12 @@ export const ChatIntentHandler: RequestHandler = {
         const contextWithMemory = memoryContext
           ? `${contextData}\n\n前回の会話コンテキスト: ${memoryContext}`
           : contextData;
-        const result = await chat(briefingQuery, previousResponseId, contextWithMemory);
+        const result = await chat(briefingQuery, previousResponseId, contextWithMemory, userId);
         responseText = result.text;
         responseId = result.responseId;
       } else {
         const contextData = memoryContext ? `前回の会話コンテキスト: ${memoryContext}` : undefined;
-        const result = await chat(query, previousResponseId, contextData);
+        const result = await chat(query, previousResponseId, contextData, userId);
         responseText = result.text;
         responseId = result.responseId;
       }
