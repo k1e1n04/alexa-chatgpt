@@ -4,6 +4,7 @@ import { shoppingToolDefinitions, executeShoppingTool } from "./tools/shoppingTo
 import { calendarToolDefinitions, executeCalendarTool } from "./tools/calendarTools";
 import { switchbotToolDefinitions, executeSwitchbotTool } from "./tools/switchbotTools";
 import { slackToolDefinitions, executeSlackTool } from "./tools/slackTools";
+import { pairpanelToolDefinitions, executePairpanelTool } from "./tools/pairpanelTools";
 import { agentToolDefinitions, executeAgentTool } from "./tools/agentTools";
 import { cleanForSpeech } from "./utils/speechUtils";
 import { research } from "./gemini";
@@ -23,7 +24,7 @@ const SYSTEM_INSTRUCTIONS =
   "\n\n## ツールのリスク分類と確認ルール\n" +
   "midリスクのツールは実行前に必ず「○○しますがよろしいですか？」と確認し、肯定応答を得てから実行すること。\n" +
   "highリスクのツールは「申し訳ありません、この操作は現在対応しておりません」と答えて実行しないこと。\n" +
-  "low（確認不要）: get_today_events, get_events_by_date, get_shopping_list, research_web, make_plan, defer_to_async, send_slack_message\n" +
+  "low（確認不要）: get_today_events, get_events_by_date, get_shopping_list, research_web, make_plan, defer_to_async, send_slack_message, send_pairpanel_notification\n" +
   "mid（実行前確認必須）: add_calendar_event, add_shopping_items, turn_on_device, turn_off_device, set_ac_temperature, set_ac_mode, complete_all_shopping\n\n" +
   "## プランニングルール\n" +
   "ユーザーの依頼が2ステップ以上必要と判断したとき、まずmake_planツールで計画を宣言してから実行すること。\n" +
@@ -55,6 +56,7 @@ const CUSTOM_TOOLS = [
   ...calendarToolDefinitions,
   ...switchbotToolDefinitions,
   ...(process.env.SLACK_WEBHOOK_URL ? slackToolDefinitions : []),
+  ...(process.env.PAIRPANEL_API_URL ? pairpanelToolDefinitions : []),
   ...(process.env.GEMINI_API_KEY ? [researchToolDefinition] : []),
   ...agentToolDefinitions,
 ];
@@ -73,6 +75,7 @@ async function executeToolDispatch(
     (await executeCalendarTool(name, args)) ??
     (await executeSwitchbotTool(name, args)) ??
     (await executeSlackTool(name, args)) ??
+    (await executePairpanelTool(name, args)) ??
     (await executeAgentTool(name, args, agentContext)) ??
     JSON.stringify({ error: `未知の関数: ${name}` })
   );

@@ -3,10 +3,10 @@
 ## デプロイ
 
 ```bash
-cd lambda && npm run build && cd .. && ask deploy --profile stg --ignore-hash && aws lambda update-function-configuration --function-name ask-gpt-stg-default-1778390136821 --timeout 30 --region ap-northeast-1 --profile stg
+cd lambda && npm run build && cd .. && ask deploy --profile stg --ignore-hash && aws lambda update-function-configuration --function-name ask-gpt-stg-default-1778390136821 --timeout 60 --region ap-northeast-1 --profile stg
 ```
 
-`ask deploy` はタイムアウトを正しく設定しないため、後続の `aws lambda update-function-configuration` で 30 秒を明示的に設定する。
+`ask deploy` はタイムアウトを正しく設定しないため、後続の `aws lambda update-function-configuration` で 60 秒を明示的に設定する。
 
 ## ソース構成
 
@@ -16,7 +16,7 @@ cd lambda && npm run build && cd .. && ask deploy --profile stg --ignore-hash &&
 
 ## Lambda
 
-- リージョン: `ap-northeast-1` (東京)、タイムアウト 30 秒
+- リージョン: `ap-northeast-1` (東京)、タイムアウト 60 秒
 - スキル ID: `amzn1.ask.skill.664915a9-313a-4c0c-9ddd-50fe39a5f63d` (stg)
 
 ## pairpanel 連携
