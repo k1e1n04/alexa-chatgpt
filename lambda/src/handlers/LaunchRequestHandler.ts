@@ -9,6 +9,7 @@ export const LaunchRequestHandler: RequestHandler = {
   },
   async handle(handlerInput: HandlerInput) {
     const userId = handlerInput.requestEnvelope.context.System.user.userId;
+    const user = handlerInput.requestEnvelope.context.System.user;
     const memory = await getMemory(userId);
 
     if (memory) {
@@ -17,9 +18,22 @@ export const LaunchRequestHandler: RequestHandler = {
       handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
     }
 
-    return handlerInput.responseBuilder
-      .speak("はい、どうぞ。")
-      .reprompt("何か聞きたいことはありますか？")
-      .getResponse();
+    const hasRemindersPermission =
+      (user.permissions as { scopes?: Record<string, { status?: string }> } | undefined)
+        ?.scopes?.["alexa::alerts:reminders:skill:readwrite"]?.status === "GRANTED";
+
+    const speechText = hasRemindersPermission
+      ? "はい、どうぞ。"
+      : "はい、どうぞ。通知機能を有効にするには、Alexaアプリからリマインダーの権限を許可してください。";
+
+    const builder = handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt("何か聞きたいことはありますか？");
+
+    if (!hasRemindersPermission) {
+      builder.withAskForPermissionsConsentCard(["alexa::alerts:reminders:skill:readwrite"]);
+    }
+
+    return builder.getResponse();
   },
 };

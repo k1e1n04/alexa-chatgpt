@@ -40,6 +40,7 @@ export const switchbotToolDefinitions: OpenAI.Responses.FunctionTool[] =
           type: "function",
           name: "turn_on_device",
           description: `SwitchBotデバイスをオンにする。利用可能: ${deviceNames.join("、")}`,
+          strict: false,
           parameters: {
             type: "object",
             properties: {
@@ -52,6 +53,7 @@ export const switchbotToolDefinitions: OpenAI.Responses.FunctionTool[] =
           type: "function",
           name: "turn_off_device",
           description: `SwitchBotデバイスをオフにする。利用可能: ${deviceNames.join("、")}`,
+          strict: false,
           parameters: {
             type: "object",
             properties: {
@@ -64,6 +66,7 @@ export const switchbotToolDefinitions: OpenAI.Responses.FunctionTool[] =
           type: "function",
           name: "set_ac_temperature",
           description: "エアコンの温度を設定する（冷房モードで動作）",
+          strict: false,
           parameters: {
             type: "object",
             properties: {
@@ -77,6 +80,7 @@ export const switchbotToolDefinitions: OpenAI.Responses.FunctionTool[] =
           type: "function",
           name: "set_ac_mode",
           description: "エアコンのモードを変える",
+          strict: false,
           parameters: {
             type: "object",
             properties: {

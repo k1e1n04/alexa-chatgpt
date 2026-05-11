@@ -58,9 +58,11 @@ export async function completeAllShopping(ids: string[]): Promise<void> {
   if (!res.ok) throw new Error(`completeAllShopping failed: ${res.status}`);
 }
 
-export async function postNotification(
-  notification: PairpanelNotification,
-): Promise<void> {
+export async function postNotification(notification: PairpanelNotification): Promise<void> {
+  if (!BASE_URL) {
+    console.info("[pairpanel-notify] PAIRPANEL_API_URL not set, skipping");
+    return;
+  }
   const res = await fetch(`${BASE_URL}/api/v1/alexa/notifications`, {
     method: "POST",
     headers: headers(),
@@ -68,6 +70,6 @@ export async function postNotification(
     signal: AbortSignal.timeout(5000),
   });
   if (!res.ok) {
-    console.warn(`[pairpanel] postNotification failed: ${res.status}`);
+    console.warn("[pairpanel-notify] failed:", res.status);
   }
 }

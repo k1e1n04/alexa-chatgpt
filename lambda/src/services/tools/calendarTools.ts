@@ -6,12 +6,14 @@ export const calendarToolDefinitions: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "get_today_events",
     description: "今日の Google カレンダーの予定一覧を取得する",
+    strict: false,
     parameters: { type: "object", properties: {}, required: [] },
   },
   {
     type: "function",
     name: "get_events_by_date",
     description: "指定した日付の Google カレンダーの予定一覧を取得する。明日・明後日・特定の日付など今日以外の予定を取得するときに使う",
+    strict: false,
     parameters: {
       type: "object",
       properties: {
@@ -24,6 +26,7 @@ export const calendarToolDefinitions: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "add_calendar_event",
     description: "Google カレンダーに予定を追加する",
+    strict: false,
     parameters: {
       type: "object",
       properties: {

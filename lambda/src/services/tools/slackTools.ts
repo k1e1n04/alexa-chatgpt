@@ -5,6 +5,7 @@ export const slackToolDefinitions: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "send_slack_message",
     description: "Slack にメッセージを送る。家族への連絡や通知に使う",
+    strict: false,
     parameters: {
       type: "object",
       properties: {
