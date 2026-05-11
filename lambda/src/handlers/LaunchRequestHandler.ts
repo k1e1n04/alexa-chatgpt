@@ -1,5 +1,6 @@
 import { HandlerInput, RequestHandler } from "ask-sdk-core";
 import { getMemory } from "../services/memory";
+import { getPendingCompletedTasks, markTaskNotified } from "../services/asyncTaskClient";
 
 const SESSION_KEY_MEMORY = "memoryContext";
 
@@ -18,13 +19,28 @@ export const LaunchRequestHandler: RequestHandler = {
       handlerInput.attributesManager.setSessionAttributes(sessionAttributes);
     }
 
+    let pendingTasks: Awaited<ReturnType<typeof getPendingCompletedTasks>> = [];
+    try {
+      pendingTasks = await getPendingCompletedTasks(userId);
+    } catch (err) {
+      console.warn("[launch] getPendingCompletedTasks failed", err);
+    }
+
     const hasRemindersPermission =
       (user.permissions as { scopes?: Record<string, { status?: string }> } | undefined)
         ?.scopes?.["alexa::alerts:reminders:skill:readwrite"]?.status === "GRANTED";
 
-    const speechText = hasRemindersPermission
-      ? "はい、どうぞ。"
-      : "はい、どうぞ。通知機能を有効にするには、Alexaアプリからリマインダーの権限を許可してください。";
+    let speechText: string;
+    if (pendingTasks.length > 0) {
+      const taskList = pendingTasks.map((t) => `「${t.goal.slice(0, 20)}」`).join("、");
+      speechText = `はい、どうぞ。さっきお願いした${taskList}の件が完了しています。確認しますか？`;
+      void Promise.allSettled(pendingTasks.map((t) => markTaskNotified(t.taskId))).catch(() => {});
+    } else if (!hasRemindersPermission) {
+      speechText =
+        "はい、どうぞ。通知機能を有効にするには、Alexaアプリからリマインダーの権限を許可してください。";
+    } else {
+      speechText = "はい、どうぞ。";
+    }
 
     const builder = handlerInput.responseBuilder
       .speak(speechText)
