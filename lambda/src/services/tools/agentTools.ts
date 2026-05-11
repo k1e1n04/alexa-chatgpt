@@ -73,7 +73,8 @@ export async function executeAgentTool(
     case "defer_to_async": {
       const goal = args.goal as string;
       const plan = args.plan as string[];
-      const { taskId } = await createAsyncTask(context.userId ?? "unknown", goal, plan);
+      const delivery = args.delivery as string | undefined;
+      const { taskId } = await createAsyncTask(context.userId ?? "unknown", goal, plan, delivery);
       console.info("[defer_to_async]", { taskId, goal });
       return JSON.stringify({
         taskId,

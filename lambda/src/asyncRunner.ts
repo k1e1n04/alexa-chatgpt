@@ -7,18 +7,26 @@ interface AsyncRunnerEvent {
   userId: string;
   goal: string;
   plan: string[];
+  delivery?: string;
   forceFail?: boolean;
   error?: unknown;
 }
 
+function deliveryToChannels(delivery?: string): Array<"pairpanel" | "alexa-reminder"> {
+  if (delivery === "alexa-reminder") return ["alexa-reminder"];
+  if (delivery === "both") return ["pairpanel", "alexa-reminder"];
+  return ["pairpanel"];
+}
+
 export const handler = async (event: AsyncRunnerEvent): Promise<void> => {
-  const { taskId, userId, goal, forceFail } = event;
+  const { taskId, userId, goal, delivery, forceFail } = event;
+  const channels = deliveryToChannels(delivery);
 
   if (forceFail) {
     const errMsg = String(event.error ?? "Step Functions execution failed");
     await updateTaskStatus(taskId, "failed", undefined, errMsg);
     await dispatch({
-      channels: ["pairpanel"],
+      channels,
       notification: {
         kind: "alert",
         title: "エラー",
@@ -31,7 +39,7 @@ export const handler = async (event: AsyncRunnerEvent): Promise<void> => {
   }
 
   await updateTaskStatus(taskId, "running");
-  console.info("[async-runner] start", { taskId, goal });
+  console.info("[async-runner] start", { taskId, goal, delivery });
 
   try {
     const result = await chat(goal, undefined, undefined, userId);
@@ -41,7 +49,7 @@ export const handler = async (event: AsyncRunnerEvent): Promise<void> => {
 
     const shortGoal = goal.length > 25 ? `${goal.slice(0, 25)}…` : goal;
     await dispatch({
-      channels: ["pairpanel"],
+      channels,
       notification: {
         kind: "task-result",
         title: `完了: ${shortGoal}`,
@@ -57,7 +65,7 @@ export const handler = async (event: AsyncRunnerEvent): Promise<void> => {
     console.error("[async-runner] failed", { taskId, err: errMsg });
 
     await dispatch({
-      channels: ["pairpanel"],
+      channels,
       notification: {
         kind: "alert",
         title: "エラー",

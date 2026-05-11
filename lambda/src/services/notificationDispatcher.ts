@@ -29,11 +29,13 @@ export async function dispatch(opts: DispatchOptions): Promise<void> {
       if (channel === "pairpanel") {
         await postNotification(notification);
       } else if (channel === "alexa-reminder") {
+        // Alexa への push 通知は LaunchRequestHandler の getPendingCompletedTasks で実現する。
+        // タスクが completed になれば次回スキル起動時に自動アナウンスされる。
         if (quiet) {
-          console.info("[notification] quiet hours, skipping alexa-reminder");
+          console.info("[alexa-reminder] quiet hours - will announce on next skill launch:", notification.title);
           return;
         }
-        console.info("[alexa-reminder stub]", notification.title, notification.body);
+        console.info("[alexa-reminder] will announce on next skill launch:", notification.title);
       }
     }),
   );

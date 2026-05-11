@@ -22,6 +22,7 @@ export interface AgentTask {
   userId: string;
   goal: string;
   plan: string[];
+  delivery?: string;
   status: TaskStatus;
   result?: string;
   createdAt: string;
@@ -35,6 +36,7 @@ export async function createAsyncTask(
   userId: string,
   goal: string,
   plan: string[],
+  delivery?: string,
 ): Promise<{ taskId: string }> {
   const taskId = `task-${Date.now()}`;
   const createdAt = new Date().toISOString();
@@ -43,7 +45,7 @@ export async function createAsyncTask(
   await dynamo.send(
     new PutCommand({
       TableName: TABLE_NAME,
-      Item: { taskId, userId, goal, plan, status: "pending", createdAt, ttl },
+      Item: { taskId, userId, goal, plan, status: "pending", createdAt, ttl, ...(delivery ? { delivery } : {}) },
     }),
   );
 
@@ -52,14 +54,14 @@ export async function createAsyncTask(
       new StartExecutionCommand({
         stateMachineArn: STATE_MACHINE_ARN,
         name: taskId,
-        input: JSON.stringify({ taskId, userId, goal, plan }),
+        input: JSON.stringify({ taskId, userId, goal, plan, ...(delivery ? { delivery } : {}) }),
       }),
     );
   } else {
     console.warn("[async-task] ASYNC_AGENT_STATE_MACHINE_ARN not set - skipping Step Functions");
   }
 
-  console.info("[async-task] created", { taskId, userId, goal });
+  console.info("[async-task] created", { taskId, userId, goal, delivery });
   return { taskId };
 }
 

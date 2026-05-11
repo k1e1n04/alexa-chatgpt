@@ -50,6 +50,7 @@ describe("executeAgentTool", () => {
       "amzn1.ask.account.test",
       "旅行候補を出す",
       ["予定確認", "天気調査", "候補作成"],
+      "both",
     );
   });
 

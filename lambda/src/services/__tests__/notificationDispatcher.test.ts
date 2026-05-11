@@ -42,7 +42,7 @@ describe("dispatch", () => {
       respectQuietHours: true,
     });
 
-    expect(infoSpy).toHaveBeenCalledWith("[alexa-reminder stub]", "朝のお知らせ", "天気は晴れ");
+    expect(infoSpy).toHaveBeenCalledWith("[alexa-reminder] will announce on next skill launch:", "朝のお知らせ");
     vi.useRealTimers();
   });
 
@@ -57,7 +57,7 @@ describe("dispatch", () => {
       respectQuietHours: true,
     });
 
-    expect(infoSpy).toHaveBeenCalledWith("[notification] quiet hours, skipping alexa-reminder");
+    expect(infoSpy).toHaveBeenCalledWith("[alexa-reminder] quiet hours - will announce on next skill launch:", "リマインダー");
     vi.useRealTimers();
   });
 
@@ -72,7 +72,7 @@ describe("dispatch", () => {
       respectQuietHours: true,
     });
 
-    expect(infoSpy).toHaveBeenCalledWith("[alexa-reminder stub]", "緊急", "異常検知");
+    expect(infoSpy).toHaveBeenCalledWith("[alexa-reminder] will announce on next skill launch:", "緊急");
     vi.useRealTimers();
   });
 
@@ -88,7 +88,7 @@ describe("dispatch", () => {
     });
 
     expect(pairpanel.postNotification).toHaveBeenCalledOnce();
-    expect(infoSpy).toHaveBeenCalledWith("[alexa-reminder stub]", "完了", "旅行候補が出ました");
+    expect(infoSpy).toHaveBeenCalledWith("[alexa-reminder] will announce on next skill launch:", "完了");
     vi.useRealTimers();
   });
 });
