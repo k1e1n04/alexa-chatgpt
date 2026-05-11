@@ -42,7 +42,7 @@ export const handler = async (event: AsyncRunnerEvent): Promise<void> => {
   console.info("[async-runner] start", { taskId, goal, delivery });
 
   try {
-    const result = await chat(goal, undefined, undefined, userId);
+    const result = await chat(goal, undefined, undefined, userId, true);
 
     await updateTaskStatus(taskId, "completed", result.text);
     console.info("[async-runner] completed", { taskId });

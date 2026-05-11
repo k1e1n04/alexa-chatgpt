@@ -37,7 +37,7 @@ describe("asyncRunner", () => {
     });
 
     expect(updateTaskStatus).toHaveBeenNthCalledWith(1, "task-1", "running");
-    expect(chat).toHaveBeenCalledWith("旅行候補を出す", undefined, undefined, "user-1");
+    expect(chat).toHaveBeenCalledWith("旅行候補を出す", undefined, undefined, "user-1", true);
     expect(updateTaskStatus).toHaveBeenNthCalledWith(2, "task-1", "completed", "候補は3件です");
     expect(dispatch).toHaveBeenCalledWith(
       expect.objectContaining({

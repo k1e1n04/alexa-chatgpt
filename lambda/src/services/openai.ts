@@ -89,8 +89,11 @@ export async function chat(
   previousResponseId?: string,
   contextData?: string,
   userId?: string,
+  disableAgentTools?: boolean,
 ): Promise<ChatResult> {
-  const tools: OpenAI.Responses.ResponseCreateParams["tools"] = [...CUSTOM_TOOLS];
+  const tools: OpenAI.Responses.ResponseCreateParams["tools"] = disableAgentTools
+    ? CUSTOM_TOOLS.filter((t) => t.name !== "make_plan" && t.name !== "defer_to_async")
+    : [...CUSTOM_TOOLS];
 
   const nowJST = new Date().toLocaleString("ja-JP", {
     timeZone: "Asia/Tokyo",
