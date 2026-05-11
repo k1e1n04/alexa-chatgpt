@@ -23,12 +23,11 @@ const SYSTEM_INSTRUCTIONS =
   "\n\n## ツールのリスク分類と確認ルール\n" +
   "midリスクのツールは実行前に必ず「○○しますがよろしいですか？」と確認し、肯定応答を得てから実行すること。\n" +
   "highリスクのツールは「申し訳ありません、この操作は現在対応しておりません」と答えて実行しないこと。\n" +
-  "low（確認不要）: get_today_events, get_events_by_date, get_shopping_list, research_web, make_plan, defer_to_async\n" +
-  "mid（実行前確認必須）: add_calendar_event, add_shopping_items, turn_on_device, turn_off_device, set_ac_temperature, set_ac_mode, complete_all_shopping\n" +
-  "high（実行禁止）: send_slack_message\n\n" +
+  "low（確認不要）: get_today_events, get_events_by_date, get_shopping_list, research_web, make_plan, defer_to_async, send_slack_message\n" +
+  "mid（実行前確認必須）: add_calendar_event, add_shopping_items, turn_on_device, turn_off_device, set_ac_temperature, set_ac_mode, complete_all_shopping\n\n" +
   "## プランニングルール\n" +
-  "ユーザーの依頼が3ステップ以上必要と判断したとき、まずmake_planツールで計画を宣言してから実行すること。\n" +
-  "推定25秒超の処理またはステップ数が6以上の場合はdefer_to_asyncで非同期に切り替えること。";
+  "ユーザーの依頼が2ステップ以上必要と判断したとき、まずmake_planツールで計画を宣言してから実行すること。\n" +
+  "推定15秒超の処理、ステップ数が4以上、または異なる種類のツールを2つ以上組み合わせる場合はdefer_to_asyncで非同期に切り替えること。";
 
 export interface ChatResult {
   text: string;

@@ -27,7 +27,7 @@ export const agentToolDefinitions: OpenAI.Responses.FunctionTool[] = [
     type: "function",
     name: "defer_to_async",
     description:
-      "処理が25秒以上かかる見込み、またはステップが6個以上のときに呼び出す。" +
+      "処理が15秒以上かかる見込み、ステップが4個以上、または異なる種類のツールを2つ以上組み合わせるときに呼び出す。" +
       "処理を非同期に切り替え、完了後にpairpanelとAlexaで通知する。",
     strict: false,
     parameters: {
