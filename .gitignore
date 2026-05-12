@@ -4,3 +4,4 @@ node_modules/
 lambda/node_modules/
 lambda/index.js
 lambda/dist/
+.ask/
