@@ -27,8 +27,10 @@ const SYSTEM_INSTRUCTIONS =
   "low（確認不要）: get_today_events, get_events_by_date, get_shopping_list, research_web, make_plan, defer_to_async, send_slack_message, send_pairpanel_notification\n" +
   "mid（実行前確認必須）: add_calendar_event, add_shopping_items, turn_on_device, turn_off_device, set_ac_temperature, set_ac_mode, complete_all_shopping\n\n" +
   "## プランニングルール\n" +
-  "ユーザーの依頼が2ステップ以上必要と判断したとき、まずmake_planツールで計画を宣言してから実行すること。\n" +
-  "推定15秒超の処理、ステップ数が4以上、または異なる種類のツールを2つ以上組み合わせる場合はdefer_to_asyncで非同期に切り替えること。";
+  "ユーザーの依頼を受けたら、他のツールを呼ぶ前に必ず複雑さを評価すること。\n" +
+  "2ステップ以上必要な依頼はmake_planを最初のツール呼び出しとして宣言してから実行すること。\n" +
+  "推定15秒超の処理、ステップ数が4以上、または異なる種類のツールを2つ以上組み合わせる場合はmake_planではなくdefer_to_asyncを最初に呼び出して非同期に切り替えること。\n" +
+  "【重要】research_web・カレンダー・買い物リスト・通知などを組み合わせる依頼は必ずdefer_to_asyncから始めること。";
 
 export interface ChatResult {
   text: string;

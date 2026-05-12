@@ -14,7 +14,7 @@
       "skillInfrastructure": {
         "type": "@ask-cli/lambda-deployer",
         "userConfig": {
-          "runtime": "nodejs20.x",
+          "runtime": "nodejs22.x",
           "handler": "index.handler",
           "templateType": "cfn",
           "awsRegion": "ap-northeast-1",
