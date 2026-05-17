@@ -6,7 +6,7 @@
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --target=node22 --outfile=index.js --minify --external:@aws-sdk/* && esbuild src/asyncRunner.ts --bundle --platform=node --target=node22 --outfile=async-runner.js --minify --external:@aws-sdk/* && esbuild src/morningBriefingRunner.ts --bundle --platform=node --target=node22 --outfile=morning-briefing-runner.js --minify --external:@aws-sdk/*",
     "build:dev": "esbuild src/index.ts --bundle --platform=node --target=node22 --outfile=index.js --external:@aws-sdk/* && esbuild src/asyncRunner.ts --bundle --platform=node --target=node22 --outfile=async-runner.js --external:@aws-sdk/* && esbuild src/morningBriefingRunner.ts --bundle --platform=node --target=node22 --outfile=morning-briefing-runner.js --external:@aws-sdk/*",
-    "watch": "npm run build:dev -- --watch",
+    "watch": "pnpm run build:dev -- --watch",
     "test": "vitest run"
   },
   "devDependencies": {

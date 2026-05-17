@@ -1,0 +1,7 @@
+allowBuilds:
+  '@google/genai': true
+  aws-sdk: true
+  esbuild: true
+  protobufjs: true
+minimumReleaseAge: 10080 # 7日
+minimumReleaseAgeStrict: true

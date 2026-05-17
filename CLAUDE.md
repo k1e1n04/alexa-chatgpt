@@ -3,7 +3,7 @@
 ## デプロイ
 
 ```bash
-cd lambda && npm run build && cd .. && ask deploy --profile stg --ignore-hash && aws lambda update-function-configuration --function-name ask-gpt-stg-default-1778390136821 --timeout 60 --region ap-northeast-1 --profile stg
+cd lambda && pnpm run build && cd .. && ask deploy --profile stg --ignore-hash && aws lambda update-function-configuration --function-name ask-gpt-stg-default-1778390136821 --timeout 60 --region ap-northeast-1 --profile stg
 ```
 
 `ask deploy` はタイムアウトを正しく設定しないため、後続の `aws lambda update-function-configuration` で 60 秒を明示的に設定する。
@@ -12,7 +12,7 @@ cd lambda && npm run build && cd .. && ask deploy --profile stg --ignore-hash &&
 
 - **編集するソース**: `lambda/src/` （こちらが本体）
 - **注意**: `.ask/lambda/src/` は ask deploy 時に `lambda/` からコピーされるため、直接編集しても上書きされる
-- **注意**: `lambda/index.js` は TypeScript のバンドル済みファイル。ソース変更後は必ず `npm run build` でビルドしてからデプロイすること
+- **注意**: `lambda/index.js` は TypeScript のバンドル済みファイル。ソース変更後は必ず `pnpm run build` でビルドしてからデプロイすること
 
 ## Lambda
 
