@@ -568,6 +568,7 @@ aws lambda update-function-configuration \
     GEMINI_API_KEY=...,
     PAIRPANEL_API_URL=...,
     PAIRPANEL_API_GATEWAY_KEY=...,
+    PAIRPANEL_ALEXA_SECRET=...,
     PAIRPANEL_USER_ID=...,
     PAIRPANEL_PAIR_ID=...,
     MEMORY_TABLE_NAME=alexa-chatgpt-memory,

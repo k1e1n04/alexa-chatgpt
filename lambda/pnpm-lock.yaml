@@ -11,6 +11,12 @@ importers:
       '@aws-sdk/client-sfn':
         specifier: ^3.1045.0
         version: 3.1045.0
+      ask-sdk-core:
+        specifier: 2.14.0
+        version: 2.14.0(ask-sdk-model@1.86.0)
+      ask-sdk-model:
+        specifier: 1.86.0
+        version: 1.86.0
     devDependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.1045.0
